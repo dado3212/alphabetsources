@@ -7,23 +7,25 @@
 
 @interface Source : NSObject
 -(id)name;
+-(id)rooturi;
+@end
+
+@interface SourceCell
 @end
 
 NSMutableDictionary *sources;
+int totalNum;
 NSArray *sourceTitles;
+NSMutableDictionary *sourcesMapping = [[NSMutableDictionary alloc] init];
 
 // Maps from the new tableView indexes to the old one so the standard Cydia functions work
 static NSIndexPath* remapping(NSIndexPath *newPath) {
   if ([newPath section] == 0 && [newPath row] == 0) {
     return newPath;
   } else {
-    int num = 0;
-    for (int i = 0; i < [sourceTitles count]; i++) {
-      if (i < [newPath section] - 1) {
-        num += [[sources objectForKey:[sourceTitles objectAtIndex:i]] count];
-      }
-    }
-    num += [newPath row];
+    NSString *section = [sourceTitles objectAtIndex:[newPath section]-1];
+    Source *sourceInSection = [[sources objectForKey:section] objectAtIndex:[newPath row]];
+    int num = [[sourcesMapping objectForKey:[sourceInSection rooturi]] intValue];
     return [NSIndexPath indexPathForRow:num inSection:1];
   }
 }
@@ -35,9 +37,14 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
   Database *globalDatabase = MSHookIvar<Database *>(self, "database_");
 
   sources = [[NSMutableDictionary alloc] init];
+  totalNum = [[globalDatabase sources] count];
+
+  [sourcesMapping removeAllObjects];
 
   // For each source
-  for (Source *source in [globalDatabase sources]) {
+  for (int i = 0; i < totalNum; i++) {
+    Source *source = [globalDatabase sources][i];
+  
     // Get the first letter of the source name as the key (uppercase)
     NSString *key = [[[source name] substringToIndex:1] uppercaseString];
 
@@ -54,10 +61,12 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
       return [first localizedCaseInsensitiveCompare:second];
     }] forKey:key];
   }
+  UITableView* list = MSHookIvar<UITableView *>(self, "list_");
+
   sourceTitles = [[sources allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
   // Reload the table so that the sections/rowCounts update
-  [MSHookIvar<UITableView *>(self, "list_") reloadData];
+  [list reloadData];
 }
 
 // Sources + 1 for the "All Sources"
@@ -82,6 +91,16 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
 }
 
 -(id)tableView:(id)arg1 cellForRowAtIndexPath:(id)arg2 {
+  // If there's no mapping, regenerate it
+  if ([sourcesMapping count] == 0) {
+    for (int i = 0; i < totalNum; i++) {
+      SourceCell *cell = %orig(arg1, [NSIndexPath indexPathForRow:i inSection:1]);
+      Source *source = MSHookIvar<Source *>(cell, "source_");
+      [sourcesMapping setObject:[NSNumber numberWithInt:i] forKey:[source rooturi]];
+    }
+  }
+
+  // Get the source the new one is referring to
   return %orig(arg1, remapping(arg2));
 }
 
