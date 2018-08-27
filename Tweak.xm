@@ -84,7 +84,7 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
 
 -(int)tableView:(id)arg1 numberOfRowsInSection:(int)arg2 {
   if (arg2 == 0) {
-    return 1;
+    return %orig;
   } else {
     return [[sources objectForKey:[sourceTitles objectAtIndex:arg2-1]] count];
   }
