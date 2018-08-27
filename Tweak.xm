@@ -20,7 +20,7 @@ NSMutableDictionary *sourcesMapping = [[NSMutableDictionary alloc] init];
 
 // Maps from the new tableView indexes to the old one so the standard Cydia functions work
 static NSIndexPath* remapping(NSIndexPath *newPath) {
-  if ([newPath section] == 0 && [newPath row] == 0) {
+  if ([newPath section] == 0) {
     return newPath;
   } else {
     NSString *section = [sourceTitles objectAtIndex:[newPath section]-1];
