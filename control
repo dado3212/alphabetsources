@@ -1,11 +1,11 @@
 Package: com.hackingdartmouth.alphabetsources
 Name: AlphabetSources
 Depends: mobilesubstrate
-Version: 1.1.1
+Version: 1.1.2
 Architecture: iphoneos-arm
 Description: Sorts the Cydia sources under alphabetical headers
-Maintainer: Alex Beals <Alex.Beals.18@dartmouth.edu>
-Author: Alex Beals <Alex.Beals.18@dartmouth.edu>
+Maintainer: Alex Beals <alexcbeals+tweak@gmail.com>
+Author: Alex Beals <alexcbeals+tweak@gmail.com>
 Section: Tweaks
 Icon: file:///Library/Application Support/AlphabetSources/icon@2x.png
 Depiction: http://cydia.alexbeals.com/AlphabetSources

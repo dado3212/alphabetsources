@@ -47,6 +47,9 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
   
     // Get the first letter of the source name as the key (uppercase)
     NSString *key = [[[source name] substringToIndex:1] uppercaseString];
+    if (key == nil) {
+      key = @"";
+    }
 
     // Update array for that key to include source
     NSMutableArray *array = [[sources objectForKey:key] mutableCopy];
@@ -96,7 +99,11 @@ static NSIndexPath* remapping(NSIndexPath *newPath) {
     for (int i = 0; i < totalNum; i++) {
       SourceCell *cell = %orig(arg1, [NSIndexPath indexPathForRow:i inSection:1]);
       Source *source = MSHookIvar<Source *>(cell, "source_");
-      [sourcesMapping setObject:[NSNumber numberWithInt:i] forKey:[source rooturi]];
+      NSString *key = [source rooturi];
+      if (key == nil) {
+        key = @"";
+      }
+      [sourcesMapping setObject:[NSNumber numberWithInt:i] forKey:key];
     }
   }
 
